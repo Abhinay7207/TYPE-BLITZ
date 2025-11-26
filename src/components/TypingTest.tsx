@@ -278,49 +278,95 @@ export default function TypingTest() {
                     {personalBest && wpm > personalBest.wpm && (
                         <p className="text-yellow-400 font-bold mb-4">🏆 New Personal Best!</p>
                     )}
-                    <SaveResult wpm={wpm} accuracy={accuracy} mode={duration.toString()} difficulty={difficulty} />
+                    <SaveResult wpm={wpm} accuracy={accuracy} mode={duration.toString()} difficulty={difficulty} caseMode={caseMode} />
                 </div>
             )}
         </div>
     );
 }
 
-function SaveResult({ wpm, accuracy, mode, difficulty }: { wpm: number; accuracy: number; mode: string; difficulty: string }) {
+function SaveResult({ wpm, accuracy, mode, difficulty, caseMode }: { wpm: number; accuracy: number; mode: string; difficulty: string; caseMode: string }) {
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState("");
+    const [showNameInput, setShowNameInput] = useState(true);
+    const [displayName, setDisplayName] = useState("");
 
-    useEffect(() => {
-        const save = async () => {
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!displayName.trim()) {
+            setError("Please enter your name");
+            return;
+        }
+
+        try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
 
-            const { error } = await supabase.from('results').insert({
-                user_id: user.id,
+            const { error: insertError } = await supabase.from('results').insert({
+                user_id: user?.id || null,
+                display_name: displayName.trim(),
                 wpm,
                 accuracy,
-                mode: `${mode}s_${difficulty}`
+                mode: `${mode}s`,
+                difficulty,
+                case_mode: caseMode
             });
 
-            if (error) {
-                console.error(error);
-                setError("Failed to save score");
-            } else {
-                setSaved(true);
-            }
-        };
+            if (insertError) throw insertError;
 
-        save();
-    }, [wpm, accuracy, mode, difficulty]);
+            setSaved(true);
+            setShowNameInput(false);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || "Failed to save score");
+        }
+    };
 
-    return (
-        <div className="text-sm">
-            {saved ? (
-                <span className="text-green-400">✓ Score saved to leaderboard!</span>
-            ) : error ? (
-                <span className="text-red-400">{error}</span>
-            ) : (
-                <span className="text-muted">Sign in to save your score</span>
-            )}
-        </div>
-    );
+    if (saved) {
+        return (
+            <div className="text-center">
+                <div className="text-green-400 font-bold mb-2">✓ Score saved to leaderboard!</div>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 rounded-lg glass-button text-sm hover:bg-primary/10"
+                >
+                    View Leaderboard
+                </button>
+            </div>
+        );
+    }
+
+    if (showNameInput) {
+        return (
+            <form onSubmit={handleSave} className="w-full max-w-sm mx-auto">
+                <div className="mb-4">
+                    <label className="block text-sm text-muted mb-2">Enter your name for the leaderboard:</label>
+                    <input
+                        type="text"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="Your name"
+                        className="w-full px-4 py-2 rounded-lg glass-panel border border-surface-border text-white focus:border-primary focus:outline-none"
+                        autoFocus
+                        maxLength={30}
+                    />
+                </div>
+                {error && <div className="text-red-400 text-sm mb-3">{error}</div>}
+                <button
+                    type="submit"
+                    className="w-full px-4 py-2 rounded-lg bg-primary text-white font-medium hover:shadow-[0_0_15px_var(--primary-glow)] transition-all"
+                >
+                    Save to Leaderboard
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setShowNameInput(false)}
+                    className="w-full mt-2 text-sm text-muted hover:text-white"
+                >
+                    Skip
+                </button>
+            </form>
+        );
+    }
+
+    return null;
 }
