@@ -1,66 +1,37 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import TypingTest from "@/components/TypingTest";
+import { Zap } from "lucide-react";
+import Auth from "@/components/Auth";
+import Leaderboard from "@/components/Leaderboard";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen flex flex-col items-center justify-between p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1a1a1a] via-background to-background">
+      {/* Header */}
+      <header className="w-full max-w-6xl flex items-center justify-between mb-12">
+        <div className="flex items-center gap-2">
+          <Zap className="text-primary w-8 h-8" />
+          <h1 className="text-2xl font-bold tracking-tighter text-gradient">TypeBlitz</h1>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="flex items-center gap-4">
+          <Leaderboard />
+          <Auth />
         </div>
-      </main>
-    </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="w-full flex-1 flex flex-col items-center justify-center">
+        <TypingTest />
+      </div>
+
+      {/* Footer */}
+      <footer className="w-full max-w-6xl mt-12 flex justify-between text-muted text-sm">
+        <p>© 2025 TypeBlitz. All rights reserved.</p>
+        <div className="flex gap-4">
+          <a href="#" className="hover:text-white transition-colors">Privacy</a>
+          <a href="#" className="hover:text-white transition-colors">Terms</a>
+        </div>
+      </footer>
+    </main>
   );
 }
