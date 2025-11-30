@@ -47,17 +47,25 @@ export default function TypingTest() {
         if (!startTimeRef.current) return;
 
         const elapsedSeconds = (Date.now() - startTimeRef.current) / 1000;
-        const words = userInput.trim().split(/\s+/).filter(w => w.length > 0).length;
         const minutes = elapsedSeconds / 60;
-        const currentWpm = minutes > 0 ? words / minutes : 0;
 
+        // Calculate accuracy
         let correctChars = 0;
         for (let i = 0; i < userInput.length; i++) {
             if (userInput[i] === text[i]) correctChars++;
         }
         const currentAccuracy = userInput.length > 0 ? (correctChars / userInput.length) * 100 : 100;
 
-        setWpm(currentWpm);
+        // Calculate WPM based on standard 5 chars per word and accuracy
+        // Gross WPM = (All Typed Entries / 5) / Time (min)
+        // Net WPM = Gross WPM * (Accuracy / 100)
+        const grossWpm = minutes > 0 ? (userInput.length / 5) / minutes : 0;
+        const netWpm = grossWpm * (currentAccuracy / 100);
+
+        // Actual words count for display
+        const words = userInput.trim().split(/\s+/).filter(w => w.length > 0).length;
+
+        setWpm(Math.max(0, netWpm));
         setAccuracy(currentAccuracy);
         setWordsTyped(words);
     }, [userInput, text]);
